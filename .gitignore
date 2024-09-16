@@ -1,0 +1,5 @@
+*.bak
+work
+work/*
+transcript
+vsim.wlf

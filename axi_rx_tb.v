@@ -36,6 +36,7 @@ module test_axi_rx;
     // Clock generation
     initial begin
         sclk = 0;
+        #1; //mismatch between sclk and aclk
         forever #5 sclk = ~sclk; // 100 MHz clock
     end
 
@@ -113,13 +114,20 @@ module test_axi_rx;
             gold_data = {gold_data[30:0], sdata};
             #10;
         end
-        svalid = 0;
-        #10;
-        svalid = 1;
+        
+        
+        $display("Gold packet: %h", gold_data);
+        // if (fifo_data != gold_data) begin
+        //     $display("Test case 2 FAILED");
+        //     $error("Received packet: %h", fifo_data);
+        // end
+
         repeat (packet_length) begin
             sdata = $random;
             gold_data = {gold_data[30:0], sdata};
             #10;
+            if(fifo_valid == 1'b1)
+                $display("Received packet: %h", fifo_data);
         end
         svalid = 0;
 
@@ -128,6 +136,12 @@ module test_axi_rx;
         $display("Received packet: %h", fifo_data);
         $display("Gold packet: %h", gold_data);
 
+        if(fifo_data === gold_data) begin
+            $display("Test case 2 PASSED");
+        end else begin
+            $display("Test case 2 FAILED");
+            $error("Received packet: %h", fifo_data);
+        end
 
         // End simulation
         #100;

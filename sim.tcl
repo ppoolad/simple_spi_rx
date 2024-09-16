@@ -9,4 +9,4 @@ add wave -divider -height 30 "UUT"
 
 add wave -position insertpoint sim:/test_axi_rx/uut/*
 
-run 1000ns
+run 10000ns

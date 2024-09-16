@@ -14,6 +14,7 @@ module axi_rx #(
 
     reg [5:0] bit_count;
     reg [packet_length:0] shift_reg;
+    reg [packet_length-1:0] payload;
     reg [packet_length-1:0] fifo_data_r0, fifo_data_r1;
     reg packet_ready;
     reg rx_ack;
@@ -51,16 +52,19 @@ module axi_rx #(
             bit_count <= 6'd0;
             shift_reg <= {packet_length{1'b0}};
             packet_ready <= 1'b0;
-        end else if (svalid && !packet_ready) begin
+        end else if (svalid) begin
             shift_reg <= {shift_reg[packet_length-2:0], sdata};
             bit_count <= bit_count + 1;
             if (bit_count == (packet_length-1)) begin
                 packet_ready <= 1'b1;
+                payload <= {shift_reg[packet_length-2:0], sdata};
                 bit_count <= 6'd0; //reset bit count
             end
-        end else if (rx_ack) begin
-            bit_count <= 6'd0;
-            shift_reg <= {packet_length{1'b0}};
+        end
+        
+        if (rx_ack) begin
+            // bit_count <= 6'd0;
+            // shift_reg <= {packet_length{1'b0}};
             packet_ready <= 1'b0;
         end
     end
@@ -76,7 +80,7 @@ module axi_rx #(
             rx_ack <= 1'b0;
         end else begin 
             if (packet_ready) begin
-                fifo_data_r0 <= shift_reg[packet_length-1:0];
+                fifo_data_r0 <= payload;
                 fifo_valid_r0 <= 1'b1;
                 rx_ack <= 1'b1;
             end else begin

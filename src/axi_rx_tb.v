@@ -143,6 +143,32 @@ module test_axi_rx;
             $error("Received packet: %h", fifo_data);
         end
 
+        #20 
+        // Test case 3: Invalid packet reception
+        $display("Test case 3: Invalid packet reception");
+        #20;
+        svalid = 1;
+        fifo_ready = 1;
+        gold_data = 32'h00000000;
+        repeat (packet_length-5) begin
+            sdata = $random;
+            gold_data = {gold_data[30:0], sdata};
+            #10;
+        end
+        svalid = 0;
+
+        gold_data = {gold_data[30:0], sdata};
+        // Wait for FIFO to be valid
+        wait (fifo_valid);  
+        $display("Received packet: %h", fifo_data);
+        $display("Gold packet: %h", gold_data);
+        if(fifo_data === gold_data) begin
+            $display("Test case 3 PASSED");
+        end else begin
+            $display("Test case 3 FAILED");
+            $error("Received packet: %h", fifo_data);
+        end
+
         // End simulation
         #100;
         $finish;

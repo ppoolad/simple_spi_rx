@@ -44,7 +44,7 @@ module axi_rx #(
     reg packet_ready;
     reg rx_ack;
     reg fifo_valid_r0, fifo_valid_r1;
-
+    reg rx_start, rx_done;
     // receive data with sclk
     always @(negedge sclk or negedge aresetn) begin
         // reset the shift register and bit count
@@ -52,15 +52,30 @@ module axi_rx #(
             bit_count <= 6'd0;
             shift_reg <= {packet_length{1'b0}};
             packet_ready <= 1'b0;
+            payload <= {(packet_length-1){1'b0}};
+            rx_start <= 0;
+            rx_done <= 0;
         end else begin
             if (svalid) begin // if valid data is received
+                if(!rx_start) 
+                    shift_reg[packet_length-1:1] <= 0;
+                rx_start <= 1;
+                rx_done <= 0;
                 shift_reg <= {shift_reg[packet_length-2:0], sdata}; // shift in the data
                 bit_count <= bit_count + 1; // increment the bit count
                 if (bit_count == (packet_length-1)) begin // if the bit count is equal to the packet length
+                    rx_start <= 0;
+                    shift_reg[packet_length-1:1] <= 0;
                     packet_ready <= 1'b1; // set the packet ready flag
                     payload <= {shift_reg[packet_length-2:0], sdata}; // set the payload
                     bit_count <= 6'd0; //reset bit count
                 end
+            end else if(rx_start) begin
+                rx_start <= 0;
+                rx_done <= 1;
+                payload <= {shift_reg[packet_length-2:0], sdata};
+                packet_ready <= 1'b1;
+                bit_count <= 6'd0; //reset bit count
             end
             
             // if the fifo is ready, send the data and reset the packet ready flag

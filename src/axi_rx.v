@@ -32,7 +32,9 @@ module axi_rx #(
     input wire aresetn,
     output reg [packet_length-1:0] fifo_data,
     output reg fifo_valid,
-    input wire fifo_ready
+    input wire fifo_ready,
+    
+    output wire dbg_out
 );
 
     reg [5:0] bit_count;
@@ -67,6 +69,8 @@ module axi_rx #(
             end
         end
     end
+    
+    assign dbg_out = shift_reg[packet_length-2:0];
 
     // send data to the fifo
     always @(posedge aclk or negedge aresetn) begin

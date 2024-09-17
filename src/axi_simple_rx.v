@@ -17,7 +17,7 @@
 		input wire svalid_n,
 
 		//debug signal 
-		output reg data_o_dbg,
+		output wire data_o_dbg,
 		// Ports of Axi Master Bus Interface M00_AXIS
 		input wire  m00_axis_aclk,
 		input wire  m00_axis_aresetn,
@@ -41,7 +41,8 @@
 		.aresetn(m00_axis_aresetn),    
 		.fifo_data(m00_axis_tdata), 
 		.fifo_valid(m00_axis_tvalid), 
-		.fifo_ready(m00_axis_tready) 
+		.fifo_ready(m00_axis_tready),
+		.dbg_out(data_o_dbg)
 	);
 	
 	assign m00_axis_tstrb = 4'b1111;
@@ -63,11 +64,5 @@
    .IB(svalid_n)  // 1-bit input: Diff_n buffer input (connect directly to top-level port)
     );
 
-
-	// debug sliced data bit
-	always @(negedge sclk) begin
-		data_o_dbg <= data_bit_w & valid_bit_w;
-	end
-	// User logic ends
 
 	endmodule

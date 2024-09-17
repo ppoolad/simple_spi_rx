@@ -77,7 +77,7 @@
       <spirit:parameters>
         <spirit:parameter>
           <spirit:name>POLARITY</spirit:name>
-          <spirit:value spirit:id="BUSIFPARAM_VALUE.M00_AXIS_RST.POLARITY" spirit:choiceRef="choice_list_74b5137e">ACTIVE_LOW</spirit:value>
+          <spirit:value spirit:id="BUSIFPARAM_VALUE.M00_AXIS_RST.POLARITY" spirit:choiceRef="choice_list_9d8b0d81">ACTIVE_LOW</spirit:value>
         </spirit:parameter>
       </spirit:parameters>
     </spirit:busInterface>
@@ -122,7 +122,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>dfabef28</spirit:value>
+            <spirit:value>950bc69b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -138,7 +138,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>dfabef28</spirit:value>
+            <spirit:value>950bc69b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -371,7 +371,7 @@
       <spirit:enumeration>32</spirit:enumeration>
     </spirit:choice>
     <spirit:choice>
-      <spirit:name>choice_list_74b5137e</spirit:name>
+      <spirit:name>choice_list_9d8b0d81</spirit:name>
       <spirit:enumeration>ACTIVE_HIGH</spirit:enumeration>
       <spirit:enumeration>ACTIVE_LOW</spirit:enumeration>
     </spirit:choice>
@@ -386,7 +386,7 @@
       <spirit:file>
         <spirit:name>src/axi_simple_rx.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_d2a2af28</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_dcf91c01</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -452,14 +452,14 @@
         <xilinx:taxonomy>AXI_Peripheral</xilinx:taxonomy>
       </xilinx:taxonomies>
       <xilinx:displayName>axi_simple_rx_v1.0</xilinx:displayName>
-      <xilinx:coreRevision>2</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2024-09-17T02:50:19Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>3</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2024-09-17T17:18:40Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2022.2</xilinx:xilinxVersion>
-      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="4be171f7"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="562bd431"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="ace6d5bc"/>
+      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="8a2a6053"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="bf4040c3"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="da2f5a2b"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="9a194edc"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="179b8710"/>
     </xilinx:packagingInfo>

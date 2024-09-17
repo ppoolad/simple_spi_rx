@@ -1,3 +1,26 @@
+/**
+ * @module axi_rx
+ * @brief recieves spi-like data from ASIC and sends it to the fifo
+ * 
+ * @inputs
+ * - sclk: serial clock
+ * - sdata: data signal
+ * - svalid: valid signal
+ * - aclk:  axi busclock signal
+ * - aresetn: active low reset signal
+ * - fifo_ready: ready signal from the fifo
+ *
+ * @outputs
+ * - fifo_data: paralellized data.
+ * - fifo_valid: shows data is valid.
+ * 
+ * @notes
+ * - I assumed sclk and aclk are timed together.
+ * 
+ * @author Pooya Poolad
+ * @date 2024-09-06
+ */
+
 module axi_rx #(
     parameter packet_length = 32 //length of each transaction
 )
@@ -20,56 +43,32 @@ module axi_rx #(
     reg rx_ack;
     reg fifo_valid_r0, fifo_valid_r1;
 
-    // always @(posedge sclk or negedge aresetn) begin
-    //     if (!aresetn) begin
-    //         bit_count <= 5'd0;
-    //         shift_reg <= 32'd0;
-    //         packet_ready <= 1'b0;
-    //     end else if (svalid) begin
-    //         if (bit_count <= (packet_length-1)) begin
-    //         shift_reg <= {shift_reg[31:0], sdata};
-    //         bit_count <= bit_count + 1;
-    //         end
-    //     end else begin
-    //         if (bit_count == (packet_length)) begin
-    //             if (rx_ack == 1'b0) begin
-    //                 packet_ready <= 1'b1;
-    //             end else begin
-    //                 packet_ready <= 1'b0;
-    //                 bit_count <= 5'd0;
-    //                 shift_reg <= 32'd0;
-    //             end         
-    //         end else begin
-    //             packet_ready <= 1'b0;
-    //             bit_count <= 6'd0;
-    //             shift_reg <= 32'd0;
-    //         end
-    //     end
-    // end
-
+    // receive data with sclk
     always @(posedge sclk or negedge aresetn) begin
-        if (!aresetn) begin
+        // reset the shift register and bit count
+        if (!aresetn) begin 
             bit_count <= 6'd0;
             shift_reg <= {packet_length{1'b0}};
             packet_ready <= 1'b0;
-        end else if (svalid) begin
-            shift_reg <= {shift_reg[packet_length-2:0], sdata};
-            bit_count <= bit_count + 1;
-            if (bit_count == (packet_length-1)) begin
-                packet_ready <= 1'b1;
-                payload <= {shift_reg[packet_length-2:0], sdata};
+        end else if (svalid) begin // if valid data is received
+            shift_reg <= {shift_reg[packet_length-2:0], sdata}; // shift in the data
+            bit_count <= bit_count + 1; // increment the bit count
+            if (bit_count == (packet_length-1)) begin // if the bit count is equal to the packet length
+                packet_ready <= 1'b1; // set the packet ready flag
+                payload <= {shift_reg[packet_length-2:0], sdata}; // set the payload
                 bit_count <= 6'd0; //reset bit count
             end
         end
         
+        // if the fifo is ready, send the data and reset the packet ready flag
         if (rx_ack) begin
-            // bit_count <= 6'd0;
-            // shift_reg <= {packet_length{1'b0}};
             packet_ready <= 1'b0;
         end
     end
 
+    // send data to the fifo
     always @(posedge aclk or negedge aresetn) begin
+        // reset the fifo data and valid signals
         if (!aresetn) begin
             fifo_data <= 32'd0;
             fifo_valid <= 1'b0;
@@ -78,7 +77,10 @@ module axi_rx #(
             fifo_data_r1 <= 32'd0;
             fifo_valid_r1 <= 1'b0;
             rx_ack <= 1'b0;
+        
+        // if the fifo is ready, send the data
         end else begin 
+            // if the packet is ready, read the data into retiming registers and acknowledge the reception
             if (packet_ready) begin
                 fifo_data_r0 <= payload;
                 fifo_valid_r0 <= 1'b1;
@@ -87,14 +89,17 @@ module axi_rx #(
                 fifo_valid_r0 <= 1'b0;
             end
             
+            // retiming registers
             fifo_data_r1 <= fifo_data_r0;
             fifo_valid_r1 <= fifo_valid_r0;
             
+            // send the data to the fifo if the fifo is ready
             if (fifo_ready) begin
                 fifo_data <= fifo_data_r1;
                 fifo_valid <= fifo_valid_r1;
             end
 
+            // keep rx_ack only for one cycle
             if (rx_ack) begin
                 rx_ack <= 1'b0;
             end

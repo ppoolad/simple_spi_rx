@@ -50,19 +50,21 @@ module axi_rx #(
             bit_count <= 6'd0;
             shift_reg <= {packet_length{1'b0}};
             packet_ready <= 1'b0;
-        end else if (svalid) begin // if valid data is received
-            shift_reg <= {shift_reg[packet_length-2:0], sdata}; // shift in the data
-            bit_count <= bit_count + 1; // increment the bit count
-            if (bit_count == (packet_length-1)) begin // if the bit count is equal to the packet length
-                packet_ready <= 1'b1; // set the packet ready flag
-                payload <= {shift_reg[packet_length-2:0], sdata}; // set the payload
-                bit_count <= 6'd0; //reset bit count
+        end else begin
+            if (svalid) begin // if valid data is received
+                shift_reg <= {shift_reg[packet_length-2:0], sdata}; // shift in the data
+                bit_count <= bit_count + 1; // increment the bit count
+                if (bit_count == (packet_length-1)) begin // if the bit count is equal to the packet length
+                    packet_ready <= 1'b1; // set the packet ready flag
+                    payload <= {shift_reg[packet_length-2:0], sdata}; // set the payload
+                    bit_count <= 6'd0; //reset bit count
+                end
             end
-        end
-        
-        // if the fifo is ready, send the data and reset the packet ready flag
-        if (rx_ack) begin
-            packet_ready <= 1'b0;
+            
+            // if the fifo is ready, send the data and reset the packet ready flag
+            if (rx_ack) begin
+                packet_ready <= 1'b0;
+            end
         end
     end
 

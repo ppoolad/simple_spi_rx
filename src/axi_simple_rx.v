@@ -41,12 +41,13 @@
 		.aresetn(m00_axis_aresetn),    
 		.fifo_data(m00_axis_tdata), 
 		.fifo_valid(m00_axis_tvalid), 
+		.tlast(m00_axis_tlast),
 		.fifo_ready(m00_axis_tready),
 		.dbg_out(data_o_dbg)
 	);
 	
 	assign m00_axis_tstrb = 4'b1111;
-	assign m00_axis_tlast = 1'b1;
+	//assign m00_axis_tlast = 1'b0;
 	// instantiate lvds receiver
     // LVDS receiver
 

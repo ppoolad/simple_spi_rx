@@ -74,9 +74,7 @@ module test_axi_rx;
         $display("Received packet: %h", fifo_data);
         $display("Gold packet: %h", gold_data);
 
-        if (fifo_data === gold_data) begin
-            $display("Test case 1 Part 1 PASSED");
-        end else begin
+        if (fifo_data !== gold_data) begin
             $display("Test case 1 FAILED");
             $error("Received packet: %h", fifo_data);
         end
@@ -93,6 +91,32 @@ module test_axi_rx;
         svalid = 0;
 
         // Wait for FIFO to be valid
+        wait (fifo_valid);
+        $display("Received packet: %h", fifo_data);
+        $display("Gold packet: %h", gold_data);
+
+        if (fifo_data === gold_data) begin
+            $display("Test case 1 PASSED");
+        end else begin
+            $display("Test case 1 FAILED");
+            $error("Received packet: %h", fifo_data);
+        end
+
+
+       //again with more delay
+        #100;
+        svalid = 1;
+        fifo_ready = 0;
+        repeat (packet_length) begin
+            sdata = $random;
+            gold_data = {gold_data[30:0], sdata};
+            #10;
+        end
+        svalid = 0;
+
+        // Wait for FIFO to be valid
+        #100
+        fifo_ready = 1;
         wait (fifo_valid);
         $display("Received packet: %h", fifo_data);
         $display("Gold packet: %h", gold_data);
@@ -167,6 +191,15 @@ module test_axi_rx;
         end else begin
             $display("Test case 3 FAILED");
             $error("Received packet: %h", fifo_data);
+        end
+
+        #20;
+        svalid = 1;
+        fifo_ready = 1;
+        repeat (5*packet_length) begin
+            sdata = $random;
+            gold_data = {gold_data[30:0], sdata};
+            #10;
         end
 
         // End simulation

@@ -32,6 +32,7 @@ module axi_rx #(
     input wire aresetn,
     output reg [packet_length-1:0] fifo_data,
     output reg fifo_valid,
+    output tlast,
     input wire fifo_ready,
     
     output wire dbg_out
@@ -44,7 +45,11 @@ module axi_rx #(
     reg packet_ready;
     reg rx_ack;
     reg fifo_valid_r0, fifo_valid_r1;
+    reg tlast_reg, tlast_r0, tlast_r1;
     reg rx_start, rx_done;
+    reg [2:0] packet_ctr;
+
+    assign tlast = tlast_reg;
     // receive data with sclk
     always @(negedge sclk or negedge aresetn) begin
         // reset the shift register and bit count
@@ -85,7 +90,7 @@ module axi_rx #(
         end
     end
     
-    assign dbg_out = shift_reg[packet_length-2:0];
+    assign dbg_out = shift_reg[0];
 
     // send data to the fifo
     always @(posedge aclk or negedge aresetn) begin
@@ -98,6 +103,10 @@ module axi_rx #(
             fifo_data_r1 <= 32'd0;
             fifo_valid_r1 <= 1'b0;
             rx_ack <= 1'b0;
+            packet_ctr <= 3'd0;
+            tlast_r0 <= 1'b0;
+            tlast_r1 <= 1'b0;
+            tlast_reg <= 1'b0;
         
         // if the fifo is ready, send the data
         end else begin 
@@ -106,18 +115,26 @@ module axi_rx #(
                 fifo_data_r0 <= payload;
                 fifo_valid_r0 <= 1'b1;
                 rx_ack <= 1'b1;
+                packet_ctr <= packet_ctr + 1;
+                if (packet_ctr >= 3'd3) begin
+                    tlast_r0 <= 1'b1;
+                    packet_ctr <= 3'd0;
+                end
             end else begin
                 fifo_valid_r0 <= 1'b0;
+                tlast_r0 <= 1'b0;
             end
             
             // retiming registers
             fifo_data_r1 <= fifo_data_r0;
             fifo_valid_r1 <= fifo_valid_r0;
+            tlast_r1 <= tlast_r0;
             
             // send the data to the fifo if the fifo is ready
             if (fifo_ready) begin
                 fifo_data <= fifo_data_r1;
                 fifo_valid <= fifo_valid_r1;
+                tlast_reg <= tlast_r1;
             end
 
             // keep rx_ack only for one cycle

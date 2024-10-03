@@ -42,6 +42,10 @@ module axi_rx #(
     reg [packet_length:0] shift_reg;
     reg [packet_length-1:0] payload;
     reg [packet_length-1:0] fifo_data_r0, fifo_data_r1;
+    // mini fifo with size of 8
+    reg [packet_length-1:0] fifo_data_d0, fifo_data_d1, fifo_data_d2, fifo_data_d3, fifo_data_d4, fifo_data_d5, fifo_data_d6, fifo_data_d7;
+    reg fifo_valid_d0, fifo_valid_d1, fifo_valid_d2, fifo_valid_d3, fifo_valid_d4, fifo_valid_d5, fifo_valid_d6, fifo_valid_d7;
+    reg tlast_d0, tlast_d1, tlast_d2, tlast_d3, tlast_d4, tlast_d5, tlast_d6, tlast_d7;
     reg packet_ready;
     reg rx_ack;
     reg fifo_valid_r0, fifo_valid_r1;
@@ -132,9 +136,46 @@ module axi_rx #(
             
             // send the data to the fifo if the fifo is ready
             if (fifo_ready) begin
-                fifo_data <= fifo_data_r1;
-                fifo_valid <= fifo_valid_r1;
-                tlast_reg <= tlast_r1;
+            // lets have a mini fifo with size of 8 words of 32 bits
+
+                fifo_data_d0 <= fifo_data_r1;
+                fifo_valid_d0 <= fifo_valid_r1;
+
+                fifo_data_d1 <= fifo_data_d0;
+                fifo_valid_d1 <= fifo_valid_d0;
+
+                fifo_data_d2 <= fifo_data_d1;
+                fifo_valid_d2 <= fifo_valid_d1;
+
+                fifo_data_d3 <= fifo_data_d2;
+                fifo_valid_d3 <= fifo_valid_d2;
+
+                fifo_data_d4 <= fifo_data_d3;
+                fifo_valid_d4 <= fifo_valid_d3;
+
+                fifo_data_d5 <= fifo_data_d4;
+                fifo_valid_d5 <= fifo_valid_d4;
+
+                fifo_data_d6 <= fifo_data_d5;
+                fifo_valid_d6 <= fifo_valid_d5;
+
+                fifo_data_d7 <= fifo_data_d6;
+                fifo_valid_d7 <= fifo_valid_d6;
+
+                fifo_data <= fifo_data_d7;
+                fifo_valid <= fifo_valid_d7;
+                
+
+                tlast_d0 <= tlast_r1;
+                tlast_d1 <= tlast_d0;
+                tlast_d2 <= tlast_d1;
+                tlast_d3 <= tlast_d2;
+                tlast_d4 <= tlast_d3;
+                tlast_d5 <= tlast_d4;
+                tlast_d6 <= tlast_d5;
+                tlast_d7 <= tlast_d6;
+                tlast_reg <= tlast_d7;
+                
             end
 
             // keep rx_ack only for one cycle

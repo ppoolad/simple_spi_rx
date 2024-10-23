@@ -30,6 +30,7 @@ module axi_rx #(
     input wire svalid,
     input wire aclk,
     input wire aresetn,
+    input wire enable,
     output reg [packet_length-1:0] fifo_data,
     output reg fifo_valid,
     output tlast,
@@ -60,7 +61,7 @@ module axi_rx #(
             payload <= {(packet_length-1){1'b0}};
             rx_start <= 0;
             rx_done <= 0;
-        end else begin
+        end else if(enable) begin
             if (svalid) begin // if valid data is received
                 if(!rx_start) 
                     shift_reg[packet_length-1:1] <= 0;
@@ -109,7 +110,7 @@ module axi_rx #(
             tlast_reg <= 1'b0;
         
         // if the fifo is ready, send the data
-        end else begin 
+        end else if (enable) begin 
             // if the packet is ready, read the data into retiming registers and acknowledge the reception
             if (packet_ready) begin
                 fifo_data_r0 <= payload;
@@ -141,6 +142,8 @@ module axi_rx #(
             if (rx_ack) begin
                 rx_ack <= 1'b0;
             end
+        end else begin
+            fifo_valid <= 0;
         end
     end
 
